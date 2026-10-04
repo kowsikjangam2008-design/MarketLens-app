@@ -12,7 +12,7 @@ interface HeaderProps {
 }
 
 export function Header({ onOpenSearch }: HeaderProps) {
-  const { refreshAll, isRefreshing, formattedLastUpdated } = useMarketRefresh();
+  const { refreshAll, isRefreshing, formattedLastUpdated, hasData } = useMarketRefresh();
 
   return (
     <header className="h-16 border-b bg-card/40 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
@@ -46,8 +46,17 @@ export function Header({ onOpenSearch }: HeaderProps) {
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Refresh button & status */}
         <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground font-mono">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
-          <span>Provider data • Updated {formattedLastUpdated}</span>
+          {hasData && formattedLastUpdated ? (
+            <>
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+              <span>Provider data • Updated {formattedLastUpdated}</span>
+            </>
+          ) : (
+            <>
+              <span className="inline-block w-2 h-2 rounded-full bg-amber-500/80" aria-hidden="true" />
+              <span>Data unavailable</span>
+            </>
+          )}
         </div>
 
         <Button
@@ -56,7 +65,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
           onClick={() => refreshAll()}
           disabled={isRefreshing}
           aria-label="Refresh market data"
-          title={`Refresh live data (Last updated: ${formattedLastUpdated})`}
+          title={hasData && formattedLastUpdated ? `Refresh live data (Last updated: ${formattedLastUpdated})` : 'Refresh market data (Data unavailable)'}
           className="h-8 w-8 sm:h-9 sm:w-9"
         >
           <RefreshCw

@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 export function useMarketRefresh() {
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
+  const [lastDataUpdatedAt, setLastDataUpdatedAt] = useState<number | null>(null);
   const [isTabVisible, setIsTabVisible] = useState(true);
 
   // Monitor tab visibility
@@ -22,6 +22,36 @@ export function useMarketRefresh() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
+  // Monitor query cache for actual successful live data updates
+  useEffect(() => {
+    const checkCache = () => {
+      const queries = queryClient.getQueryCache().getAll();
+      let maxUpdatedAt = 0;
+      for (const q of queries) {
+        const key = q.queryKey[0];
+        if (key === 'stock-quote' || key === 'batch-quotes') {
+          if (q.state.status === 'success' && q.state.dataUpdatedAt > maxUpdatedAt) {
+            // Verify data is non-empty
+            const data = q.state.data;
+            const hasContent = Array.isArray(data) ? data.length > 0 : Boolean(data);
+            if (hasContent) {
+              maxUpdatedAt = q.state.dataUpdatedAt;
+            }
+          }
+        }
+      }
+      if (maxUpdatedAt > 0) {
+        setLastDataUpdatedAt(maxUpdatedAt);
+      }
+    };
+
+    checkCache();
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      checkCache();
+    });
+    return () => unsubscribe();
+  }, [queryClient]);
+
   const refreshAll = useCallback(async () => {
     setIsRefreshing(true);
     try {
@@ -29,18 +59,19 @@ export function useMarketRefresh() {
         queryClient.invalidateQueries({ queryKey: ['stock-quote'] }),
         queryClient.invalidateQueries({ queryKey: ['batch-quotes'] }),
       ]);
-      setLastRefreshedAt(new Date());
     } finally {
       setIsRefreshing(false);
     }
   }, [queryClient]);
 
-  const formattedLastUpdated = format(lastRefreshedAt, 'hh:mm:ss a');
+  const hasData = lastDataUpdatedAt !== null;
+  const formattedLastUpdated = lastDataUpdatedAt ? format(new Date(lastDataUpdatedAt), 'hh:mm:ss a') : null;
 
   return {
     refreshAll,
     isRefreshing,
-    lastRefreshedAt,
+    hasData,
+    lastDataUpdatedAt,
     formattedLastUpdated,
     isTabVisible,
   };

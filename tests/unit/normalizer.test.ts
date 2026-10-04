@@ -50,6 +50,41 @@ describe('normalizeStockQuote', () => {
     expect(normalized.volume).toBeNull();
     expect(normalized.marketCap).toBeNull();
   });
+
+  it('normalizes 0xramm v3.0 snake_case fields into standard StockQuote', () => {
+    const raw: RawStockQuote = {
+      symbol: 'RELIANCE',
+      ticker: 'RELIANCE.NS',
+      exchange: 'NSE',
+      company_name: 'Reliance Industries Limited',
+      last_price: 1167.7,
+      change: -19.3,
+      percent_change: -1.63,
+      volume: 5234567,
+      market_cap: 1580000,
+      pe_ratio: 21.14,
+      earnings_per_share: 55.2,
+      dividend_yield: 0.45,
+      day_high: 1192.0,
+      day_low: 1162.0,
+      previous_close: 1187.0,
+      year_high: 1608.8,
+      year_low: 1115.5,
+    };
+
+    const normalized = normalizeStockQuote(raw);
+    expect(normalized.symbol).toBe('RELIANCE.NS');
+    expect(normalized.name).toBe('Reliance Industries Limited');
+    expect(normalized.price).toBe(1167.7);
+    expect(normalized.change).toBe(-19.3);
+    expect(normalized.changePercent).toBe(-1.63);
+    expect(normalized.pe).toBe(21.14);
+    expect(normalized.eps).toBe(55.2);
+    expect(normalized.high).toBe(1192.0);
+    expect(normalized.low).toBe(1162.0);
+    expect(normalized.fiftyTwoWeekHigh).toBe(1608.8);
+    expect(normalized.fiftyTwoWeekLow).toBe(1115.5);
+  });
 });
 
 describe('normalizeSearchResult', () => {

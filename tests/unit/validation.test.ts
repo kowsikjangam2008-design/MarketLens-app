@@ -117,4 +117,40 @@ describe('BatchQuoteResponseSchema Zod Validation', () => {
     const parsed = BatchQuoteResponseSchema.safeParse(raw);
     expect(parsed.success).toBe(true);
   });
+
+  it('validates 0xramm v3.0 snake_case quote fields', () => {
+    const raw0xramm = {
+      symbol: 'RELIANCE',
+      ticker: 'RELIANCE.NS',
+      exchange: 'NSE',
+      company_name: 'Reliance Industries Limited',
+      last_price: 1167.7,
+      change: -19.3,
+      percent_change: -1.63,
+      previous_close: 1187.0,
+      open: 1185.0,
+      day_high: 1192.0,
+      day_low: 1162.0,
+      year_high: 1608.8,
+      year_low: 1115.5,
+      volume: 5234567,
+      market_cap: 1580000,
+      pe_ratio: 21.14,
+      dividend_yield: 0.45,
+      book_value: 450.0,
+      earnings_per_share: 55.2,
+      sector: 'Energy',
+      industry: 'Oil & Gas Refining & Marketing',
+      currency: 'INR',
+    };
+
+    const parsed = RawStockQuoteSchema.safeParse(raw0xramm);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.company_name).toBe('Reliance Industries Limited');
+      expect(parsed.data.last_price).toBe(1167.7);
+      expect(parsed.data.percent_change).toBe(-1.63);
+      expect(parsed.data.pe_ratio).toBe(21.14);
+    }
+  });
 });
