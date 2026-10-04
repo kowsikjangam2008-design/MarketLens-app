@@ -18,7 +18,7 @@ export function ChartPlaceholder({ symbol }: ChartPlaceholderProps) {
         </h4>
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
           The 0xramm Indian Stock Market API supplies current market quotes for{' '}
-          <span className="font-mono font-semibold text-foreground">{symbol}</span>, but does
+          <span className="font-semibold text-foreground">{symbol}</span>, but does
           not provide historical candlestick (OHLCV) endpoints.
         </p>
       </div>

@@ -31,7 +31,7 @@ export function DataField({
       </div>
       <div
         className={cn(
-          'text-sm font-semibold tracking-tight',
+          'text-sm font-semibold tracking-tight tabular-nums',
           !isAvailable && 'text-muted-foreground/60 font-normal italic',
           valueClassName
         )}

@@ -41,7 +41,7 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-base tracking-tight text-foreground">MarketLens</span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
             Indian Markets
           </span>
         </div>
@@ -49,7 +49,7 @@ export function Sidebar() {
 
       {/* Navigation Links */}
       <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 font-mono">
+        <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
           Navigation
         </div>
         {NAV_ITEMS.map((item) => {
@@ -82,7 +82,7 @@ export function Sidebar() {
                 <Badge
                   variant={isActive ? 'secondary' : 'outline'}
                   className={cn(
-                    'text-[10px] h-4.5 px-1.5 font-mono',
+                    'text-[10px] h-4.5 px-1.5 tabular-nums font-semibold',
                     isActive && 'bg-primary-foreground/20 text-primary-foreground border-transparent'
                   )}
                 >

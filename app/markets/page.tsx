@@ -41,7 +41,7 @@ export default function MarketsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Indian Markets</h1>
-            <Badge variant="outline" className="text-xs font-mono">
+            <Badge variant="outline" className="text-xs font-medium">
               Tracked Universe (50)
             </Badge>
           </div>
@@ -51,7 +51,7 @@ export default function MarketsPage() {
         </div>
 
         {dataUpdatedAt && (
-          <div className="text-xs text-muted-foreground font-mono flex items-center gap-1.5 self-start sm:self-auto">
+          <div className="text-xs text-muted-foreground flex items-center gap-1.5 self-start sm:self-auto">
             <ShieldCheck className="h-4 w-4 text-emerald-500" aria-hidden="true" />
             <span>Updated: {new Date(dataUpdatedAt).toLocaleTimeString('en-IN')}</span>
           </div>
@@ -106,7 +106,7 @@ export default function MarketsPage() {
       ) : (
         <div className="space-y-2">
           <StockTable quotes={filteredQuotes} showWatchlistAction={true} />
-          <p className="text-[11px] text-muted-foreground text-right pt-2 font-mono">
+          <p className="text-[11px] text-muted-foreground text-right pt-2 tabular-nums">
             Showing {filteredQuotes.length} of {quotes?.length || 0} tracked Indian securities
           </p>
         </div>

@@ -70,7 +70,7 @@ export function MarketOverview({ quotes, lastUpdated }: MarketOverviewProps) {
             <div>
               <p className="text-xs text-muted-foreground font-medium">Advancing (Tracked)</p>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="font-bold text-lg font-mono text-gain">{advancing}</span>
+                <span className="font-bold text-lg tabular-nums text-gain">{advancing}</span>
                 <span className="text-xs text-muted-foreground">stocks</span>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">Trading higher today</p>
@@ -85,7 +85,7 @@ export function MarketOverview({ quotes, lastUpdated }: MarketOverviewProps) {
             <div>
               <p className="text-xs text-muted-foreground font-medium">Declining (Tracked)</p>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="font-bold text-lg font-mono text-loss">{declining}</span>
+                <span className="font-bold text-lg tabular-nums text-loss">{declining}</span>
                 <span className="text-xs text-muted-foreground">stocks</span>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">Trading lower today</p>
@@ -100,7 +100,7 @@ export function MarketOverview({ quotes, lastUpdated }: MarketOverviewProps) {
             <div>
               <p className="text-xs text-muted-foreground font-medium">Provider Status</p>
               <div className="flex items-center gap-1.5 mt-1">
-                <Badge variant="outline" className="text-xs font-mono font-normal">
+                <Badge variant="outline" className="text-xs font-normal">
                   0xramm API
                 </Badge>
               </div>

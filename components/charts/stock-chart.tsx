@@ -391,7 +391,7 @@ export function StockChart({
         <div className="relative">
           {/* Hover Crosshair Legend Bar */}
           {hoverData && (
-            <div className="absolute top-2 left-3 z-10 bg-card/85 backdrop-blur-xs border px-2 py-1 rounded text-[11px] font-mono flex flex-wrap gap-2 text-muted-foreground shadow-xs pointer-events-none">
+            <div className="absolute top-2 left-3 z-10 bg-card/85 backdrop-blur-xs border px-2 py-1 rounded text-[11px] tabular-nums flex flex-wrap gap-2 text-muted-foreground shadow-xs pointer-events-none">
               {hoverData.open !== undefined && (
                 <span>O: <strong className="text-foreground">₹{hoverData.open.toFixed(2)}</strong></span>
               )}
@@ -417,7 +417,7 @@ export function StockChart({
 
       {/* Technical Summary Bar (When real candles exist) */}
       {indicatorsData && (
-        <div className="px-4 py-2 border-t bg-muted/10 text-[11px] font-mono flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
+        <div className="px-4 py-2 border-t bg-muted/10 text-[11px] tabular-nums flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
           {indicatorsData.rsi14?.latest !== null && (
             <span>
               RSI (14): <strong className="text-foreground">{indicatorsData.rsi14?.latest}</strong>
@@ -448,8 +448,8 @@ export function StockChart({
 
       {/* Footer Attribution */}
       <div className="px-4 py-2 border-t bg-muted/20 text-[11px] text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-        <span className="font-mono">
-          {symbol} • Historical data: <strong className="text-foreground">Yahoo Finance</strong> • Live quote: <strong className="text-foreground">0xramm</strong>
+        <span>
+          <strong className="text-foreground font-semibold">{symbol}</strong> • Historical data: <strong className="text-foreground">Yahoo Finance</strong> • Live quote: <strong className="text-foreground">0xramm</strong>
         </span>
         <div className="flex items-center gap-1">
           <span>Charts powered by</span>

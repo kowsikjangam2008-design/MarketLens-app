@@ -74,7 +74,7 @@ export function SearchCommand({ isOpen, onOpenChange }: SearchCommandProps) {
 
         <div className="max-h-80 overflow-y-auto p-2 space-y-1">
           {isShowingTracked && (
-            <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+            <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Suggested Stocks (Tracked Universe)
             </div>
           )}
@@ -104,8 +104,8 @@ export function SearchCommand({ isOpen, onOpenChange }: SearchCommandProps) {
                   </div>
                   <div className="truncate">
                     <div className="font-semibold text-xs sm:text-sm truncate">{item.name}</div>
-                    <div className="text-[11px] text-muted-foreground font-mono flex items-center gap-1.5">
-                      <span>{item.symbol}</span>
+                    <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                      <span className="font-medium text-foreground/80">{item.symbol}</span>
                       <span>•</span>
                       <span>{item.exchange}</span>
                     </div>
@@ -119,7 +119,7 @@ export function SearchCommand({ isOpen, onOpenChange }: SearchCommandProps) {
                     </Badge>
                   )}
                   {'price' in item && item.price !== null && typeof item.price === 'number' && (
-                    <span className="font-mono text-xs font-semibold">
+                    <span className="tabular-nums text-xs font-semibold">
                       ₹{item.price.toFixed(2)}
                     </span>
                   )}
@@ -132,7 +132,7 @@ export function SearchCommand({ isOpen, onOpenChange }: SearchCommandProps) {
 
         <div className="px-4 py-2 border-t bg-muted/30 text-[11px] text-muted-foreground flex items-center justify-between">
           <span>Search backed by 0xramm Indian Stock Market API</span>
-          <span className="font-mono">ESC to close</span>
+          <span className="text-muted-foreground/80 font-medium">ESC to close</span>
         </div>
       </DialogContent>
     </Dialog>

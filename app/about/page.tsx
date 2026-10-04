@@ -50,7 +50,7 @@ export default function AboutPage() {
                 <Database className="h-5 w-5 text-primary" aria-hidden="true" />
                 Market Data Provider
               </CardTitle>
-              <Badge variant="outline" className="font-mono text-xs">
+              <Badge variant="outline" className="text-xs font-medium">
                 Active Adapter
               </Badge>
             </div>
@@ -70,7 +70,7 @@ export default function AboutPage() {
                 href="https://github.com/0xramm/Indian-Stock-Market-API"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline inline-flex items-center gap-1 font-mono"
+                className="text-xs text-primary hover:underline inline-flex items-center gap-1"
               >
                 https://github.com/0xramm/Indian-Stock-Market-API
                 <ExternalLink className="h-3 w-3" aria-hidden="true" />

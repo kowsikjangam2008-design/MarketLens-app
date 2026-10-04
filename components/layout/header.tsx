@@ -36,7 +36,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
             <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
             <span className="truncate">Search stocks, e.g. RELIANCE...</span>
           </span>
-          <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+          <kbd className="hidden sm:inline-flex pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 text-[10px] font-medium text-muted-foreground opacity-100">
             <span className="text-xs">⌘</span>K
           </kbd>
         </Button>
@@ -45,7 +45,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Refresh button & status */}
-        <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground font-mono">
+        <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground">
           {hasData && formattedLastUpdated ? (
             <>
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />

@@ -98,7 +98,7 @@ export default function ScreenerPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold tracking-tight">Screening Results</h2>
-          <Badge variant="outline" className="font-mono text-xs">
+          <Badge variant="outline" className="text-xs font-medium">
             {filteredQuotes.length} Matches Found
           </Badge>
         </div>

@@ -1,9 +1,18 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { QueryProvider } from '@/components/query-provider';
 import { AppShell } from '@/components/layout/app-shell';
 import { APP_CONFIG } from '@/config/constants';
+import { cn } from '@/lib/utils';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -52,8 +61,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground antialiased font-sans selection:bg-primary/20 selection:text-primary">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body
+        className={cn(
+          'min-h-screen bg-background text-foreground antialiased font-sans selection:bg-primary/20 selection:text-primary',
+          inter.className
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

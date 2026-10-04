@@ -81,10 +81,25 @@
   * {
     @apply border-border;
   }
+  html {
+    font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground font-sans;
+    font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv11" 1;
     overflow-x: hidden;
+  }
+
+  /* Ensure Inter is consistently inherited across typography elements */
+  h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, select, table, th, td, label {
+    font-family: inherit;
+  }
+
+  /* Tabular figures for financial numbers, prices, percentages, and data tables */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
 }
 

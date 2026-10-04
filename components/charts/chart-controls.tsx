@@ -113,7 +113,7 @@ export function ChartControls({
               disabled={isLoading}
               onClick={() => onTimeframeChange(tf)}
               className={cn(
-                'h-7 px-2.5 text-xs font-mono font-medium transition-colors',
+                'h-7 px-2.5 text-xs font-medium transition-colors',
                 timeframe === tf && 'bg-primary text-primary-foreground font-semibold shadow-xs'
               )}
             >
@@ -144,7 +144,7 @@ export function ChartControls({
               <Activity className="h-3 w-3" aria-hidden="true" />
               <span className="hidden sm:inline">Indicators</span>
               {activeIndicators.length > 0 && (
-                <span className="ml-0.5 rounded-full bg-primary/20 text-primary text-[10px] px-1 font-mono">
+                <span className="ml-0.5 rounded-full bg-primary/20 text-primary text-[10px] px-1 tabular-nums font-semibold">
                   {activeIndicators.length}
                 </span>
               )}

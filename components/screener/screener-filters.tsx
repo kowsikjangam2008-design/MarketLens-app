@@ -52,7 +52,7 @@ export function ScreenerFilters({
               placeholder="Min"
               value={filters.minPrice}
               onChange={(e) => onFilterChange('minPrice', e.target.value)}
-              className="h-8 text-xs font-mono"
+              className="h-8 text-xs tabular-nums"
             />
             <span className="text-muted-foreground">-</span>
             <Input
@@ -60,7 +60,7 @@ export function ScreenerFilters({
               placeholder="Max"
               value={filters.maxPrice}
               onChange={(e) => onFilterChange('maxPrice', e.target.value)}
-              className="h-8 text-xs font-mono"
+              className="h-8 text-xs tabular-nums"
             />
           </div>
         </div>
@@ -74,7 +74,7 @@ export function ScreenerFilters({
               placeholder="Min %"
               value={filters.minChangePercent}
               onChange={(e) => onFilterChange('minChangePercent', e.target.value)}
-              className="h-8 text-xs font-mono"
+              className="h-8 text-xs tabular-nums"
             />
             <span className="text-muted-foreground">-</span>
             <Input
@@ -82,7 +82,7 @@ export function ScreenerFilters({
               placeholder="Max %"
               value={filters.maxChangePercent}
               onChange={(e) => onFilterChange('maxChangePercent', e.target.value)}
-              className="h-8 text-xs font-mono"
+              className="h-8 text-xs tabular-nums"
             />
           </div>
         </div>
@@ -95,7 +95,7 @@ export function ScreenerFilters({
             placeholder="e.g. 100000"
             value={filters.minVolume}
             onChange={(e) => onFilterChange('minVolume', e.target.value)}
-            className="h-8 text-xs font-mono"
+            className="h-8 text-xs tabular-nums"
           />
         </div>
 
@@ -107,7 +107,7 @@ export function ScreenerFilters({
             placeholder="e.g. 30"
             value={filters.maxPe}
             onChange={(e) => onFilterChange('maxPe', e.target.value)}
-            className="h-8 text-xs font-mono"
+            className="h-8 text-xs tabular-nums"
           />
         </div>
 

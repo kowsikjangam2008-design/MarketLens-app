@@ -71,7 +71,7 @@ export function WatchlistManager() {
               {isEditingOrder ? 'Done Reordering' : 'Reorder Watchlist'}
             </Button>
           )}
-          <Badge variant="outline" className="text-xs font-mono h-7 px-2.5">
+          <Badge variant="outline" className="text-xs h-7 px-2.5 font-medium">
             {symbols.length} Stocks Saved
           </Badge>
         </div>
@@ -80,7 +80,7 @@ export function WatchlistManager() {
       {/* Reordering Mode Panel */}
       {isEditingOrder && (
         <div className="rounded-xl border bg-muted/30 p-4 space-y-2 animate-fade-in">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Reorder Symbols
           </h4>
           <div className="space-y-1.5">
@@ -90,8 +90,8 @@ export function WatchlistManager() {
                 className="flex items-center justify-between p-2 rounded-lg bg-card border text-sm"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-xs">{index + 1}.</span>
-                  <span className="font-mono">{sym}</span>
+                  <span className="tabular-nums font-bold text-xs">{index + 1}.</span>
+                  <span className="font-semibold text-foreground">{sym}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -142,7 +142,7 @@ export function WatchlistManager() {
           </div>
 
           <div className="pt-4 max-w-md mx-auto">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               Suggested Stocks to Add
             </p>
             <div className="flex flex-wrap justify-center gap-2">

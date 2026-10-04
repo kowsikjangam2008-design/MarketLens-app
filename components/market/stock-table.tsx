@@ -160,7 +160,7 @@ export function StockTable({ quotes, showWatchlistAction = true }: StockTablePro
                     className="block group-hover:text-primary transition-colors"
                   >
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono font-bold text-sm">{quote.symbol}</span>
+                      <span className="font-bold text-sm">{quote.symbol}</span>
                       <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5">
                         {quote.exchange || 'NSE'}
                       </Badge>
@@ -172,7 +172,7 @@ export function StockTable({ quotes, showWatchlistAction = true }: StockTablePro
                 </TableCell>
 
                 {/* LTP Price */}
-                <TableCell className="text-right font-mono">
+                <TableCell className="text-right tabular-nums">
                   {quote.price !== null ? (
                     <span className="font-semibold">₹{quote.price.toFixed(2)}</span>
                   ) : (
@@ -193,7 +193,7 @@ export function StockTable({ quotes, showWatchlistAction = true }: StockTablePro
                 </TableCell>
 
                 {/* Volume */}
-                <TableCell className="text-right font-mono text-xs hidden sm:table-cell text-muted-foreground">
+                <TableCell className="text-right tabular-nums text-xs hidden sm:table-cell text-muted-foreground">
                   {quote.volume !== null && quote.volume > 0 ? (
                     quote.volume.toLocaleString('en-IN')
                   ) : (
@@ -202,7 +202,7 @@ export function StockTable({ quotes, showWatchlistAction = true }: StockTablePro
                 </TableCell>
 
                 {/* Market Cap */}
-                <TableCell className="text-right font-mono text-xs hidden md:table-cell text-muted-foreground">
+                <TableCell className="text-right tabular-nums text-xs hidden md:table-cell text-muted-foreground">
                   {quote.marketCap !== null && quote.marketCap > 0 ? (
                     `₹${(quote.marketCap / 10000000).toLocaleString('en-IN', { maximumFractionDigits: 1 })}`
                   ) : (
@@ -211,7 +211,7 @@ export function StockTable({ quotes, showWatchlistAction = true }: StockTablePro
                 </TableCell>
 
                 {/* P/E Ratio */}
-                <TableCell className="text-right font-mono text-xs hidden lg:table-cell text-muted-foreground">
+                <TableCell className="text-right tabular-nums text-xs hidden lg:table-cell text-muted-foreground">
                   {quote.pe !== null ? (
                     quote.pe.toFixed(2)
                   ) : (

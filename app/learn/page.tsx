@@ -85,7 +85,7 @@ export default function LearnPage() {
           >
             <CardHeader className="p-5 pb-3">
               <div className="flex items-center justify-between gap-2 mb-1.5">
-                <Badge variant="outline" className="text-[10px] capitalize font-mono">
+                <Badge variant="outline" className="text-[10px] capitalize font-medium">
                   {term.category.replace('_', ' ')}
                 </Badge>
                 <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />

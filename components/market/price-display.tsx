@@ -20,7 +20,7 @@ export function PriceDisplay({
 }: PriceDisplayProps) {
   if (price === null || price === undefined) {
     return (
-      <div className={cn('text-muted-foreground/60 italic font-mono text-sm', className)}>
+      <div className={cn('text-muted-foreground/60 italic text-sm', className)}>
         Price not available
       </div>
     );
@@ -31,22 +31,22 @@ export function PriceDisplay({
   const isZero = typeof changePercent === 'number' && changePercent === 0;
 
   const sizeClasses = {
-    sm: 'text-sm',
+    sm: 'text-sm font-semibold',
     md: 'text-base font-semibold',
     lg: 'text-xl font-bold',
-    xl: 'text-3xl font-extrabold',
+    xl: 'text-3xl font-bold',
   }[size];
 
   return (
     <div className={cn('flex flex-wrap items-baseline gap-2', className)}>
-      <span className={cn('font-mono tracking-tight text-foreground', sizeClasses)}>
+      <span className={cn('tabular-nums tracking-tight text-foreground', sizeClasses)}>
         ₹{price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </span>
 
       {showChange && changePercent !== null && changePercent !== undefined && (
         <span
           className={cn(
-            'inline-flex items-center gap-0.5 text-xs font-mono font-medium px-1.5 py-0.5 rounded',
+            'inline-flex items-center gap-0.5 text-xs tabular-nums font-medium px-1.5 py-0.5 rounded',
             isPositive && 'bg-gain/15 text-gain',
             isNegative && 'bg-loss/15 text-loss',
             isZero && 'bg-muted text-muted-foreground'

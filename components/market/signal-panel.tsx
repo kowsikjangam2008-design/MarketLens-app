@@ -31,7 +31,7 @@ export function SignalPanel({ signals }: SignalPanelProps) {
           <div>
             <div className="flex items-center gap-2">
               <CardTitle className="text-base sm:text-lg">Informational Market Signals</CardTitle>
-              <Badge variant="outline" className="text-[10px] font-mono">
+              <Badge variant="outline" className="text-[10px]">
                 {signals.confidenceScore !== null ? `${signals.confidenceScore}% Data Coverage` : 'Partial'}
               </Badge>
             </div>
@@ -60,7 +60,7 @@ export function SignalPanel({ signals }: SignalPanelProps) {
 
         {/* Factors Breakdown Table / Grid */}
         <div className="space-y-3">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Analyzed Factors
           </div>
 
@@ -89,7 +89,7 @@ export function SignalPanel({ signals }: SignalPanelProps) {
                   </p>
 
                   {factor.metricsUsed.length > 0 && (
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground/75 font-mono pt-1 border-t border-border/40">
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground/75 pt-1 border-t border-border/40">
                       <span>Inputs:</span>
                       <span>{factor.metricsUsed.join(', ')}</span>
                     </div>

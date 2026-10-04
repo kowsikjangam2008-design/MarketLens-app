@@ -34,7 +34,7 @@ export function StockCard({ quote, showWatchlistAction = true }: StockCardProps)
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm sm:text-base font-mono group-hover:text-primary transition-colors">
+              <span className="font-bold text-sm sm:text-base group-hover:text-primary transition-colors">
                 {quote.symbol}
               </span>
               <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
@@ -72,7 +72,7 @@ export function StockCard({ quote, showWatchlistAction = true }: StockCardProps)
           />
 
           {quote.volume !== null && quote.volume > 0 && (
-            <span className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-[10px] text-muted-foreground tabular-nums">
               Vol: {quote.volume.toLocaleString('en-IN')}
             </span>
           )}

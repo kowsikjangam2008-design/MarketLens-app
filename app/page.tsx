@@ -122,7 +122,7 @@ export default function HomePage() {
                   onClick={() => setSelectedTerm(term)}
                 >
                   <CardHeader className="p-4 pb-2">
-                    <span className="text-[10px] uppercase font-mono text-primary font-semibold">
+                    <span className="text-[10px] uppercase tracking-wider text-primary font-semibold">
                       {term.category}
                     </span>
                     <CardTitle className="text-sm font-bold text-foreground">

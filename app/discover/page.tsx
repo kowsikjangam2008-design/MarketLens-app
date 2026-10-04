@@ -88,7 +88,7 @@ export default function DiscoverPage() {
                       <p className="text-xs text-muted-foreground">{basket.description}</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-[10px] font-mono shrink-0">
+                  <Badge variant="outline" className="text-[10px] font-medium shrink-0">
                     {basket.symbols.length} Stocks
                   </Badge>
                 </div>
