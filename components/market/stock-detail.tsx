@@ -1,6 +1,6 @@
 'use client';
 
-import { StockQuote } from '@/types/market';
+import { StockQuote, HistoricalCandle } from '@/types/market';
 import { PriceDisplay } from './price-display';
 import { DataField } from '@/components/ui/data-field';
 import { StockChartWrapper } from '@/components/charts/chart-wrapper';
@@ -22,8 +22,9 @@ export function StockDetail({ quote }: StockDetailProps) {
   const { isInWatchlist, addSymbol, removeSymbol } = useWatchlistStore();
   const bookmarked = isInWatchlist(quote.symbol);
   const [copied, setCopied] = useState(false);
+  const [historicalCandles, setHistoricalCandles] = useState<HistoricalCandle[] | null>(null);
 
-  const signals = analyzeStockSignals(quote, null); // Pass null candles since 0xramm has no historical
+  const signals = analyzeStockSignals(quote, historicalCandles);
 
   const handleShare = async () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -103,7 +104,7 @@ export function StockDetail({ quote }: StockDetailProps) {
       {/* Chart Section */}
       <section aria-labelledby="chart-heading">
         <h2 id="chart-heading" className="sr-only">Price Chart</h2>
-        <StockChartWrapper symbol={quote.symbol} candles={[]} height={420} />
+        <StockChartWrapper symbol={quote.symbol} onCandlesLoaded={setHistoricalCandles} height={420} />
       </section>
 
       {/* Market Statistics & Key Fields Grid */}

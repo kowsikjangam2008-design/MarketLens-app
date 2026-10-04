@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import {
   createChart,
   IChartApi,
@@ -16,31 +16,51 @@ import {
 } from 'lightweight-charts';
 import { useTheme } from 'next-themes';
 import { HistoricalCandle } from '@/types/market';
-import { normalizeChartData } from '@/lib/providers/historical';
-import { ChartControls, ChartType, Timeframe } from './chart-controls';
+import { normalizeChartData } from '@/lib/market/chart-normalizer';
+import { ChartControls, ChartType, Timeframe, AVAILABLE_INDICATORS } from './chart-controls';
 import { ChartPlaceholder } from './chart-placeholder';
-import { ExternalLink } from 'lucide-react';
+import { useHistoricalCandles } from '@/hooks/use-historical-candles';
+import {
+  calculateSMA,
+  calculateEMA,
+  calculateBollingerBands,
+  calculateRSI,
+  calculateMACD,
+  calculateATR,
+  calculateVWAP,
+} from '@/lib/technical-analysis';
+import { ExternalLink, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
 interface StockChartProps {
   symbol: string;
-  candles?: HistoricalCandle[];
+  initialTimeframe?: Timeframe;
   height?: number;
+  onCandlesLoaded?: (candles: HistoricalCandle[]) => void;
 }
 
-export function StockChart({ symbol, candles = [], height = 400 }: StockChartProps) {
+export function StockChart({
+  symbol,
+  initialTimeframe = '1D',
+  height = 420,
+  onCandlesLoaded,
+}: StockChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<any> | null>(null);
+  const mainSeriesRef = useRef<ISeriesApi<any> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
+  const indicatorSeriesRefs = useRef<Map<string, ISeriesApi<'Line'>>>(new Map());
 
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
   const [chartType, setChartType] = useState<ChartType>('candlestick');
-  const [timeframe, setTimeframe] = useState<Timeframe>('1D');
+  const [timeframe, setTimeframe] = useState<Timeframe>(initialTimeframe);
   const [isPercentageMode, setIsPercentageMode] = useState(false);
   const [showVolume, setShowVolume] = useState(true);
+  const [activeIndicators, setActiveIndicators] = useState<string[]>([]);
   const [hoverData, setHoverData] = useState<{
     time?: string | number;
     open?: number;
@@ -50,9 +70,47 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
     volume?: number;
   } | null>(null);
 
+  // Fetch real historical candles using TanStack Query hook
+  const {
+    data: candles = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useHistoricalCandles(symbol, timeframe);
+
+  // Notify parent component when candles update (for signal analysis)
+  useEffect(() => {
+    if (candles && candles.length > 0 && onCandlesLoaded) {
+      onCandlesLoaded(candles);
+    }
+  }, [candles, onCandlesLoaded]);
+
   const hasHistoricalData = Array.isArray(candles) && candles.length > 0;
 
-  // Initialize and update chart
+  // Calculate technical indicators
+  const indicatorsData = useMemo(() => {
+    if (!hasHistoricalData) return null;
+    return {
+      sma20: calculateSMA(candles, 20),
+      sma50: calculateSMA(candles, 50),
+      sma200: calculateSMA(candles, 200),
+      ema20: calculateEMA(candles, 20),
+      bollinger: calculateBollingerBands(candles, 20, 2),
+      rsi14: calculateRSI(candles, 14),
+      macd: calculateMACD(candles),
+      atr: calculateATR(candles, 14),
+      vwap: calculateVWAP(candles),
+    };
+  }, [candles, hasHistoricalData]);
+
+  const handleToggleIndicator = (id: string) => {
+    setActiveIndicators((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Initialize and update Lightweight Charts instance
   useEffect(() => {
     if (!containerRef.current || !hasHistoricalData) return;
 
@@ -60,6 +118,9 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
     if (chartRef.current) {
       chartRef.current.remove();
       chartRef.current = null;
+      mainSeriesRef.current = null;
+      volumeSeriesRef.current = null;
+      indicatorSeriesRefs.current.clear();
     }
 
     const container = containerRef.current;
@@ -100,7 +161,7 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
       },
       timeScale: {
         borderColor: borderCol,
-        timeVisible: true,
+        timeVisible: timeframe === '1D' || timeframe === '1W',
         secondsVisible: false,
       },
     });
@@ -108,7 +169,7 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
     chartRef.current = chart;
     const normalized = normalizeChartData(candles);
 
-    // Create Main Series using v5 unified chart.addSeries(Constructor, options)
+    // 1. Create Main Series using v5 unified API
     if (chartType === 'candlestick') {
       const candleSeries = chart.addSeries(CandlestickSeries, {
         upColor: '#10b981',
@@ -118,14 +179,14 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
         wickDownColor: '#f43f5e',
       });
       candleSeries.setData(normalized.candlesticks as any);
-      seriesRef.current = candleSeries;
+      mainSeriesRef.current = candleSeries;
     } else if (chartType === 'line') {
       const lineSeries = chart.addSeries(LineSeries, {
         color: '#3b82f6',
         lineWidth: 2,
       });
       lineSeries.setData(normalized.line as any);
-      seriesRef.current = lineSeries;
+      mainSeriesRef.current = lineSeries;
     } else if (chartType === 'area') {
       const areaSeries = chart.addSeries(AreaSeries, {
         lineColor: '#3b82f6',
@@ -134,14 +195,14 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
         lineWidth: 2,
       });
       areaSeries.setData(normalized.area as any);
-      seriesRef.current = areaSeries;
+      mainSeriesRef.current = areaSeries;
     }
 
-    // Volume Series
+    // 2. Volume Series
     if (showVolume && normalized.volume.length > 0) {
       const volumeSeries = chart.addSeries(HistogramSeries, {
         priceFormat: { type: 'volume' },
-        priceScaleId: '', // overlay on price scale
+        priceScaleId: '', // overlay
       });
       volumeSeries.priceScale().applyOptions({
         scaleMargins: {
@@ -153,20 +214,69 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
       volumeSeriesRef.current = volumeSeries;
     }
 
-    // Crosshair hover subscription
+    // 3. Technical Indicator Overlays
+    const indMap = new Map<string, ISeriesApi<'Line'>>();
+
+    if (indicatorsData) {
+      // SMA 20
+      if (activeIndicators.includes('sma20') && indicatorsData.sma20?.values.length) {
+        const s = chart.addSeries(LineSeries, { color: '#f59e0b', lineWidth: 1, title: 'SMA 20' });
+        s.setData(indicatorsData.sma20.values as any);
+        indMap.set('sma20', s);
+      }
+      // SMA 50
+      if (activeIndicators.includes('sma50') && indicatorsData.sma50?.values.length) {
+        const s = chart.addSeries(LineSeries, { color: '#8b5cf6', lineWidth: 1, title: 'SMA 50' });
+        s.setData(indicatorsData.sma50.values as any);
+        indMap.set('sma50', s);
+      }
+      // SMA 200
+      if (activeIndicators.includes('sma200') && indicatorsData.sma200?.values.length) {
+        const s = chart.addSeries(LineSeries, { color: '#06b6d4', lineWidth: 1, title: 'SMA 200' });
+        s.setData(indicatorsData.sma200.values as any);
+        indMap.set('sma200', s);
+      }
+      // EMA 20
+      if (activeIndicators.includes('ema20') && indicatorsData.ema20?.values.length) {
+        const s = chart.addSeries(LineSeries, { color: '#ec4899', lineWidth: 1, title: 'EMA 20' });
+        s.setData(indicatorsData.ema20.values as any);
+        indMap.set('ema20', s);
+      }
+      // Bollinger Bands (Upper, Lower, Middle)
+      if (activeIndicators.includes('bollinger') && indicatorsData.bollinger?.values.length) {
+        const upper = chart.addSeries(LineSeries, { color: '#60a5fa', lineWidth: 1, lineStyle: LineStyle.Dotted, title: 'BB Upper' });
+        const lower = chart.addSeries(LineSeries, { color: '#60a5fa', lineWidth: 1, lineStyle: LineStyle.Dotted, title: 'BB Lower' });
+        const middle = chart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 1, title: 'BB Mid' });
+
+        upper.setData(indicatorsData.bollinger.values.map((v) => ({ time: v.time, value: v.value.upper })) as any);
+        lower.setData(indicatorsData.bollinger.values.map((v) => ({ time: v.time, value: v.value.lower })) as any);
+        middle.setData(indicatorsData.bollinger.values.map((v) => ({ time: v.time, value: v.value.middle })) as any);
+
+        indMap.set('bb_upper', upper);
+        indMap.set('bb_lower', lower);
+        indMap.set('bb_middle', middle);
+      }
+    }
+    indicatorSeriesRefs.current = indMap;
+
+    // 4. Crosshair hover subscription
     chart.subscribeCrosshairMove((param) => {
-      if (!param.time || !param.seriesData || !seriesRef.current) {
+      if (!param.time || !param.seriesData || !mainSeriesRef.current) {
         setHoverData(null);
         return;
       }
 
-      const pointData = param.seriesData.get(seriesRef.current);
+      const pointData = param.seriesData.get(mainSeriesRef.current);
       if (pointData && typeof pointData === 'object') {
         const timeVal = param.time as Time;
         const o = 'open' in pointData ? (pointData.open as number) : undefined;
         const h = 'high' in pointData ? (pointData.high as number) : undefined;
         const l = 'low' in pointData ? (pointData.low as number) : undefined;
-        const c = 'close' in pointData ? (pointData.close as number) : ('value' in pointData ? (pointData.value as number) : undefined);
+        const c = 'close' in pointData
+          ? (pointData.close as number)
+          : 'value' in pointData
+            ? (pointData.value as number)
+            : undefined;
 
         let vol: number | undefined;
         if (volumeSeriesRef.current) {
@@ -193,9 +303,23 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
       if (chartRef.current) {
         chartRef.current.remove();
         chartRef.current = null;
+        mainSeriesRef.current = null;
+        volumeSeriesRef.current = null;
+        indicatorSeriesRefs.current.clear();
       }
     };
-  }, [candles, chartType, isDark, isPercentageMode, showVolume, height, hasHistoricalData]);
+  }, [
+    candles,
+    chartType,
+    timeframe,
+    isDark,
+    isPercentageMode,
+    showVolume,
+    activeIndicators,
+    height,
+    hasHistoricalData,
+    indicatorsData,
+  ]);
 
   const handleResetZoom = () => {
     if (chartRef.current) {
@@ -221,31 +345,64 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
         timeframe={timeframe}
         onTimeframeChange={setTimeframe}
         hasHistoricalData={hasHistoricalData}
+        isLoading={isLoading}
         isPercentageMode={isPercentageMode}
         onTogglePercentageMode={() => setIsPercentageMode(!isPercentageMode)}
         showVolume={showVolume}
         onToggleVolume={() => setShowVolume(!showVolume)}
         onResetZoom={handleResetZoom}
         onToggleFullscreen={handleToggleFullscreen}
+        activeIndicators={activeIndicators}
+        onToggleIndicator={handleToggleIndicator}
       />
 
+      {/* Insufficient Indicator Warning Bar */}
+      {activeIndicators.includes('sma200') && (!indicatorsData?.sma200 || indicatorsData.sma200.values.length === 0) && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-3 py-1.5 text-xs text-amber-500 flex items-center gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span>SMA (200) requires at least 200 daily candles. Current range ({timeframe}) contains {candles.length} candles. Switch to 1Y to view SMA 200.</span>
+        </div>
+      )}
+
       {/* Main Chart Body */}
-      {hasHistoricalData ? (
+      {isLoading && !hasHistoricalData ? (
+        <div className="flex flex-col items-center justify-center p-8 text-center min-h-[360px] space-y-3">
+          <Skeleton className="w-full h-8 max-w-md" />
+          <Skeleton className="w-full h-64 max-w-xl" />
+          <p className="text-xs text-muted-foreground animate-pulse">
+            Loading {timeframe} historical chart data from Yahoo Finance for {symbol}...
+          </p>
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center p-8 text-center min-h-[360px] space-y-3">
+          <div className="h-10 w-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
+            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h4 className="text-sm font-semibold">Unable to load historical chart data</h4>
+          <p className="text-xs text-muted-foreground max-w-md">
+            {error?.message || 'Historical data could not be retrieved from Yahoo Finance.'}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-1.5 text-xs">
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            Retry
+          </Button>
+        </div>
+      ) : hasHistoricalData ? (
         <div className="relative">
           {/* Hover Crosshair Legend Bar */}
           {hoverData && (
-            <div className="absolute top-2 left-3 z-10 bg-card/80 backdrop-blur-xs border px-2 py-1 rounded text-[11px] font-mono flex flex-wrap gap-2 text-muted-foreground shadow-xs pointer-events-none">
+            <div className="absolute top-2 left-3 z-10 bg-card/85 backdrop-blur-xs border px-2 py-1 rounded text-[11px] font-mono flex flex-wrap gap-2 text-muted-foreground shadow-xs pointer-events-none">
               {hoverData.open !== undefined && (
-                <span>O: <strong className="text-foreground">{hoverData.open.toFixed(2)}</strong></span>
+                <span>O: <strong className="text-foreground">₹{hoverData.open.toFixed(2)}</strong></span>
               )}
               {hoverData.high !== undefined && (
-                <span>H: <strong className="text-gain">{hoverData.high.toFixed(2)}</strong></span>
+                <span>H: <strong className="text-gain">₹{hoverData.high.toFixed(2)}</strong></span>
               )}
               {hoverData.low !== undefined && (
-                <span>L: <strong className="text-loss">{hoverData.low.toFixed(2)}</strong></span>
+                <span>L: <strong className="text-loss">₹{hoverData.low.toFixed(2)}</strong></span>
               )}
               {hoverData.close !== undefined && (
-                <span>C: <strong className="text-foreground">{hoverData.close.toFixed(2)}</strong></span>
+                <span>C: <strong className="text-foreground">₹{hoverData.close.toFixed(2)}</strong></span>
               )}
               {hoverData.volume !== undefined && (
                 <span>Vol: <strong className="text-foreground">{hoverData.volume.toLocaleString('en-IN')}</strong></span>
@@ -258,9 +415,42 @@ export function StockChart({ symbol, candles = [], height = 400 }: StockChartPro
         <ChartPlaceholder symbol={symbol} />
       )}
 
+      {/* Technical Summary Bar (When real candles exist) */}
+      {indicatorsData && (
+        <div className="px-4 py-2 border-t bg-muted/10 text-[11px] font-mono flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
+          {indicatorsData.rsi14?.latest !== null && (
+            <span>
+              RSI (14): <strong className="text-foreground">{indicatorsData.rsi14?.latest}</strong>
+            </span>
+          )}
+          {indicatorsData.sma20?.latest !== null && (
+            <span>
+              SMA (20): <strong className="text-foreground">₹{indicatorsData.sma20?.latest}</strong>
+            </span>
+          )}
+          {indicatorsData.ema20?.latest !== null && (
+            <span>
+              EMA (20): <strong className="text-foreground">₹{indicatorsData.ema20?.latest}</strong>
+            </span>
+          )}
+          {indicatorsData.bollinger?.latest && (
+            <span>
+              BB Mid: <strong className="text-foreground">₹{indicatorsData.bollinger.latest.middle}</strong>
+            </span>
+          )}
+          {indicatorsData.atr?.latest !== null && (
+            <span>
+              ATR (14): <strong className="text-foreground">₹{indicatorsData.atr?.latest}</strong>
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Footer Attribution */}
-      <div className="px-4 py-2 border-t bg-muted/20 text-[11px] text-muted-foreground flex items-center justify-between">
-        <span className="font-mono">{symbol} • Visualizer</span>
+      <div className="px-4 py-2 border-t bg-muted/20 text-[11px] text-muted-foreground flex flex-wrap items-center justify-between gap-2">
+        <span className="font-mono">
+          {symbol} • Historical data: <strong className="text-foreground">Yahoo Finance</strong> • Live quote: <strong className="text-foreground">0xramm</strong>
+        </span>
         <div className="flex items-center gap-1">
           <span>Charts powered by</span>
           <Link

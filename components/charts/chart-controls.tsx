@@ -9,11 +9,22 @@ import {
   RotateCcw,
   Percent,
   Layers,
+  Activity,
+  Loader2,
 } from 'lucide-react';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 export type ChartType = 'candlestick' | 'line' | 'area';
 export type Timeframe = '1D' | '1W' | '1M' | '6M' | '1Y';
+
+export const AVAILABLE_INDICATORS = [
+  { id: 'sma20', label: 'SMA (20)', color: '#f59e0b' },
+  { id: 'sma50', label: 'SMA (50)', color: '#8b5cf6' },
+  { id: 'sma200', label: 'SMA (200)', color: '#06b6d4' },
+  { id: 'ema20', label: 'EMA (20)', color: '#ec4899' },
+  { id: 'bollinger', label: 'Bollinger Bands (20, 2)', color: '#3b82f6' },
+] as const;
 
 interface ChartControlsProps {
   chartType: ChartType;
@@ -21,12 +32,15 @@ interface ChartControlsProps {
   timeframe: Timeframe;
   onTimeframeChange: (tf: Timeframe) => void;
   hasHistoricalData: boolean;
+  isLoading?: boolean;
   isPercentageMode: boolean;
   onTogglePercentageMode: () => void;
   showVolume: boolean;
   onToggleVolume: () => void;
   onResetZoom: () => void;
   onToggleFullscreen: () => void;
+  activeIndicators: string[];
+  onToggleIndicator: (id: string) => void;
 }
 
 const TIMEFRAMES: Timeframe[] = ['1D', '1W', '1M', '6M', '1Y'];
@@ -37,12 +51,15 @@ export function ChartControls({
   timeframe,
   onTimeframeChange,
   hasHistoricalData,
+  isLoading = false,
   isPercentageMode,
   onTogglePercentageMode,
   showVolume,
   onToggleVolume,
   onResetZoom,
   onToggleFullscreen,
+  activeIndicators,
+  onToggleIndicator,
 }: ChartControlsProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 p-2 border-b bg-card/60 rounded-t-xl text-xs">
@@ -82,33 +99,87 @@ export function ChartControls({
           </Button>
         </div>
 
-        {/* Timeframe Selector (Disabled when historical data is unavailable) */}
+        {/* Timeframe Selector (Always enabled for interactive timeframe switching) */}
         <div
           className="flex items-center rounded-lg border bg-muted/30 p-0.5"
           role="group"
           aria-label="Timeframe selector"
-          title={!hasHistoricalData ? 'Timeframes disabled: historical OHLC data is not supported by current provider' : undefined}
         >
           {TIMEFRAMES.map((tf) => (
             <Button
               key={tf}
               variant={timeframe === tf ? 'secondary' : 'ghost'}
               size="sm"
-              disabled={!hasHistoricalData}
+              disabled={isLoading}
               onClick={() => onTimeframeChange(tf)}
               className={cn(
-                'h-7 px-2 text-xs font-mono font-medium',
-                !hasHistoricalData && 'opacity-40 cursor-not-allowed'
+                'h-7 px-2.5 text-xs font-mono font-medium transition-colors',
+                timeframe === tf && 'bg-primary text-primary-foreground font-semibold shadow-xs'
               )}
             >
               {tf}
             </Button>
           ))}
+          {isLoading && (
+            <div className="px-1.5 flex items-center text-muted-foreground animate-spin">
+              <Loader2 className="h-3 w-3" aria-hidden="true" />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Right: Tools & Toggles */}
+      {/* Right: Tools & Indicators & Toggles */}
       <div className="flex items-center gap-1">
+        {/* Technical Indicators Dropdown */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={activeIndicators.length > 0 ? 'secondary' : 'ghost'}
+              size="sm"
+              disabled={!hasHistoricalData}
+              className="h-7 px-2 text-xs gap-1"
+              title="Technical Indicators Overlay"
+              aria-label="Technical Indicators"
+            >
+              <Activity className="h-3 w-3" aria-hidden="true" />
+              <span className="hidden sm:inline">Indicators</span>
+              {activeIndicators.length > 0 && (
+                <span className="ml-0.5 rounded-full bg-primary/20 text-primary text-[10px] px-1 font-mono">
+                  {activeIndicators.length}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-56 p-2 space-y-1">
+            <div className="font-semibold text-xs px-2 py-1 text-muted-foreground">Overlay Indicators</div>
+            <div className="h-px bg-border my-1" />
+            {AVAILABLE_INDICATORS.map((ind) => {
+              const active = activeIndicators.includes(ind.id);
+              return (
+                <button
+                  key={ind.id}
+                  type="button"
+                  onClick={() => onToggleIndicator(ind.id)}
+                  className={cn(
+                    'w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors text-left hover:bg-muted',
+                    active && 'bg-muted/70 font-medium'
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: ind.color }}
+                      aria-hidden="true"
+                    />
+                    <span>{ind.label}</span>
+                  </span>
+                  {active && <span className="text-primary text-[11px] font-bold">✓</span>}
+                </button>
+              );
+            })}
+          </PopoverContent>
+        </Popover>
+
         <Button
           variant={isPercentageMode ? 'secondary' : 'ghost'}
           size="sm"

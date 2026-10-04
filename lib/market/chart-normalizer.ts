@@ -1,29 +1,4 @@
-import { HistoricalCandle, HistoricalDataProvider } from '@/types/market';
-
-/**
- * Historical Data Provider implementation for the current system.
- * Because 0xramm Indian Stock Market API has NO historical candle endpoint,
- * this provider explicitly reports capability as false and throws informative errors.
- * NEVER generate fake candles.
- */
-export class UnavailableHistoricalDataProvider implements HistoricalDataProvider {
-  public readonly name = 'Historical Provider (None configured)';
-  public readonly capabilities = {
-    historical: false,
-  };
-
-  public async getHistoricalCandles(_symbol: string, _timeframe: string): Promise<HistoricalCandle[]> {
-    throw new Error('Historical chart data is not supported by the current 0xramm market data provider.');
-  }
-}
-
-import { yahooFinanceHistoricalProvider, YahooFinanceHistoricalProvider } from './yahoo-finance';
-
-export { yahooFinanceHistoricalProvider, YahooFinanceHistoricalProvider };
-
-export function getHistoricalDataProvider(): HistoricalDataProvider {
-  return yahooFinanceHistoricalProvider;
-}
+import { HistoricalCandle } from '@/types/market';
 
 /**
  * Normalizer for Lightweight Charts v5 series data format.
