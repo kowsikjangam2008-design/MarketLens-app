@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   Compass,
   Bookmark,
+  Wallet,
   GraduationCap,
   Settings,
   Info,
@@ -20,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 const NAV_ITEMS = [
   { href: '/', label: 'Overview', icon: LayoutDashboard },
   { href: '/markets', label: 'Markets', icon: LineChart },
+  { href: '/paper-trading', label: 'Paper Trading', icon: Wallet },
   { href: '/screener', label: 'Screener', icon: SlidersHorizontal },
   { href: '/discover', label: 'Discover', icon: Compass },
   { href: '/watchlist', label: 'Watchlist', icon: Bookmark, badgeKey: 'watchlist' },

@@ -9,20 +9,37 @@ import { analyzeStockSignals } from '@/lib/signals/analyzer';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Clock, Share2, Building2 } from 'lucide-react';
+import { Bookmark, Clock, Share2, Building2, ArrowDownUp } from 'lucide-react';
 import { useWatchlistStore } from '@/hooks/use-watchlist';
 import { StaleState } from '@/components/ui/stale-state';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
+import { usePaperPortfolio } from '@/hooks/use-paper-portfolio';
+import { OrderDialog } from '@/components/paper-trading/order-dialog';
 
 interface StockDetailProps {
   quote: StockQuote;
 }
 
 export function StockDetail({ quote }: StockDetailProps) {
+  const router = useRouter();
   const { isInWatchlist, addSymbol, removeSymbol } = useWatchlistStore();
   const bookmarked = isInWatchlist(quote.symbol);
   const [copied, setCopied] = useState(false);
   const [historicalCandles, setHistoricalCandles] = useState<HistoricalCandle[] | null>(null);
+  const [isPaperTradeOpen, setIsPaperTradeOpen] = useState(false);
+
+  const { user } = useSupabaseAuth();
+  const portfolio = usePaperPortfolio(user?.id ?? null);
+
+  const handlePaperTradeClick = () => {
+    if (!user) {
+      router.push('/paper-trading');
+    } else {
+      setIsPaperTradeOpen(true);
+    }
+  };
 
   const signals = analyzeStockSignals(quote, historicalCandles);
 
@@ -77,6 +94,16 @@ export function StockDetail({ quote }: StockDetailProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handlePaperTradeClick}
+              className="gap-1.5 text-xs h-9 bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90"
+              title="Practice paper trade this stock"
+            >
+              <ArrowDownUp className="h-4 w-4" aria-hidden="true" />
+              <span>Paper Trade</span>
+            </Button>
             <Button
               variant={bookmarked ? 'default' : 'outline'}
               size="sm"
@@ -195,6 +222,20 @@ export function StockDetail({ quote }: StockDetailProps) {
         <h2 id="signals-heading" className="sr-only">Signals Analysis</h2>
         <SignalPanel signals={signals} />
       </section>
+
+      {/* Paper Trading Order Dialog Modal */}
+      {user && (
+        <OrderDialog
+          open={isPaperTradeOpen}
+          onOpenChange={setIsPaperTradeOpen}
+          availableCash={portfolio.summary.available_cash}
+          positions={portfolio.positions}
+          defaultSymbol={quote.symbol}
+          defaultSide="BUY"
+          onSubmitOrder={portfolio.submitOrder}
+          isSubmitting={portfolio.isSubmittingOrder}
+        />
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   LineChart,
   SlidersHorizontal,
   Bookmark,
+  Wallet,
   GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -15,7 +16,7 @@ import { useWatchlistStore } from '@/hooks/use-watchlist';
 const MOBILE_NAV_ITEMS = [
   { href: '/', label: 'Overview', icon: LayoutDashboard },
   { href: '/markets', label: 'Markets', icon: LineChart },
-  { href: '/screener', label: 'Screener', icon: SlidersHorizontal },
+  { href: '/paper-trading', label: 'Paper Sim', icon: Wallet },
   { href: '/watchlist', label: 'Watchlist', icon: Bookmark, badgeKey: 'watchlist' },
   { href: '/learn', label: 'Learn', icon: GraduationCap },
 ];
